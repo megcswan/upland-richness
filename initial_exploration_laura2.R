@@ -23,119 +23,113 @@ plotrichness<-allspecies%>%
   summarize(plotrich = sum(SpeciesPresentInQuadratForNested))
 
 # Diversity by plot -------------------------------------------------------
-
-
-species_wide = allspecies %>% 
+names(allspecies)
+#Make correction to data frame, need to add together 2 instances of Carex spp.
+#See commented code below for the instances
+species_dup <- allspecies %>% 
   group_by(Park, EcoSite, EventYear, Plot, Transect, Quadrat, CurrentSpecies) %>% 
-  mutate(CoverClass_avg = mean(NestedQuadratSizeClass)) %>% 
-  select(Park:EventPanel,Plot, Transect, Quadrat, CurrentSpecies, CoverClass_avg) %>% 
-  distinct() %>% #removed 2 taxa? from record, this is probably not correct
-  pivot_wider(names_from = CurrentSpecies, values_from = CoverClass_avg, values_fill = 0) %>% 
-  ungroup()
-
-#For duplicates from above?
-#re-run species_wide stopping before the select
-#run below
-View(species_wide %>%
-  filter(CoverClassMidpoint_Quadrat_pct!=CoverMidpoint_pct))
-
-species_wide_int=species_wide %>% 
-  select(-c(Park:Plot)) %>% 
-  mutate_all(., function(x) as.integer(ifelse(x>0, 1, 0)))
-
-species_env_plot = species_wide_plot %>% 
-  select(c(Park:Plot)) %>% 
-  mutate(rownumber = row_number())
-
- 
-  
-
-rich_calc_plot = estimateR(species_wide_int_plot) %>% 
-  as.data.frame() %>% 
-  rownames_to_column() %>% 
-  pivot_longer(cols = starts_with("V"), names_to = "rownumber" ) %>% 
-  pivot_wider(names_from = rowname) %>% 
-  mutate(rownumber = as.integer(str_remove(rownumber, "V")))   
-
-rich_plot=species_env_plot %>% 
-  left_join(rich_calc_plot)
-
-
-# Diversity  by quadrat ---------------------------------------------------
-
-
-quadrichness<-allspecies%>%
-  group_by(EcoSite, EventYear, TransectQuadratID)%>%
-  summarize(quadrich = sum(SpeciesPresentInQuadratForNested))
-
-species_wide = allspecies %>% 
-  group_by(Park, EcoSite, EventYear, Plot, EventPanel,Quadrat, CurrentSpecies) %>% 
-  mutate(CoverClass_avg = mean(NestedQuadratSizeClass)) %>% 
-  select(Park:EventPanel, Quadrat,CurrentSpecies, CoverClass_avg) %>% 
-  distinct() %>% #removed 2 taxa? from record, this is probably not correct
-  pivot_wider(names_from = CurrentSpecies, values_from = CoverClass_avg, values_fill = 0) %>% 
-  ungroup()
+  mutate(PresentAbsent = sum(SpeciesPresentInQuadratForNested)) %>% 
+  select(Park:EventPanel,Plot, Transect, Quadrat, CurrentSpecies, PresentAbsent) %>% 
+  distinct() %>% #removed 2 taxa from record, add back later? 
+  mutate(PresentAbsent = ifelse(PresentAbsent==2, 1, PresentAbsent))#,
+         #EcoSite = str_remove(EcoSite, "\\w{4}_"),
+         #Plot = str_remove(Plot, "\\w{4}_")) 
 
 
 #For duplicates from above?
-#re-run species_wide stopping before the select
+#re-run species_dup
 #run below
-# View(species_wide %>% 
+# View(species_dup %>%
 #   filter(CoverClassMidpoint_Quadrat_pct!=CoverMidpoint_pct))
 
-species_wide_int=species_wide %>% 
-  select(-c(Park:Quadrat)) %>%
-  mutate_all(., function(x) as.integer((as.character(x))))
+#Pivot wide to calculate diversity metrics
+species_wide <- species_dup %>% 
+  pivot_wider(names_from = CurrentSpecies, values_from = PresentAbsent, values_fill = 0) %>% 
+  ungroup()
 
-species_wide_int=species_wide %>% 
-  select(-c(Park:Quadrat)) %>% 
+#make dataframe that has only the species as columns
+species_only=species_wide %>% 
+  select(-c(Park:Quadrat)) 
+
+#same table as above but as binary
+species_binary <- species_only%>% 
   mutate_all(., function(x) as.integer(ifelse(x>0, 1, 0)))
 
+#table with event details
 species_env = species_wide %>% 
   select(c(Park:Quadrat)) %>% 
   mutate(rownumber = row_number())
 
 
-
-
-rich_calc = estimateR(species_wide_int) %>% 
+#Calculate species richness
+rich_calc = estimateR(species_binary) %>% 
   as.data.frame() %>% 
   rownames_to_column() %>% 
   pivot_longer(cols = starts_with("V"), names_to = "rownumber" ) %>% 
   pivot_wider(names_from = rowname) %>% 
   mutate(rownumber = as.integer(str_remove(rownumber, "V")))   
 
-rich_quadrat=species_env %>% 
-  left_join(rich_calc) 
-rich_quadrat%>% 
-  ggplot(aes(x=EventYear, y = S.obs, color = EcoSite))+#str_remove(EcoSite, "\\w{4}_")))+
-  geom_boxplot()
+rich_env=species_env %>% 
+  left_join(rich_calc)
 
-#need to
-#sit down and read this protocol, what are these numbers and letters, ugh!
-names(rich_quadrat)
-
-quadrats_notcollected=rich_quadrat %>% 
-  group_by(Park, EcoSite, EventYear, Plot, EventPanel) %>% 
-  tally() %>% 
-  filter(n!=15)
-quadrats_notcollected
-
-rich_quadrat %>% 
-  group_by(Park, EventYear, EcoSite) %>% 
-  tally() 
-
-rich_quadrat %>% 
-  group_by(EcoSite, EventYear) %>% 
-  tally() 
+#make diversity dataframe
+species_dup_div <- allspecies %>% 
+  group_by(Park, EcoSite, EventYear, Plot, Transect, Quadrat, CurrentSpecies) %>% 
+  mutate(PresentAbsent = sum(CoverClassMidpoint_Quadrat_pct)) %>% 
+  select(Park:EventPanel,Plot, Transect, Quadrat, CurrentSpecies, PresentAbsent) %>% 
+  distinct()  #removed 2 taxa from record, add back later? 
+  
 
 
-View(rich_quadrat %>% 
-  group_by(Quadrat, EventYear) %>% 
-  tally() )
-View(rich_quadrat %>% 
-       group_by(EventPanel, EventYear) %>% 
-       tally() )
+#For duplicates from above?
+#re-run species_dup_div
+#run below
+# View(species_dup_div %>%
+#   filter(CoverClassMidpoint_Quadrat_pct!=CoverMidpoint_pct))
+
+#Pivot wide to calculate diversity metrics
+species_wide_div <- species_dup_div %>% 
+  pivot_wider(names_from = CurrentSpecies, values_from = PresentAbsent, values_fill = 0) %>% 
+  ungroup()
+
+#make dataframe that has only the species as columns
+species_only=species_wide_div %>% 
+  select(-c(Park:Quadrat)) 
+
+# #same table as above but as binary
+# species_binary <- species_only%>% 
+#   mutate_all(., function(x) as.integer(ifelse(x>0, 1, 0)))
+
+#table with event details
+species_env = species_wide_div %>% 
+  select(c(Park:Quadrat)) %>% 
+  mutate(rownumber = row_number())
+
+
+#Calculate species richness
+div_calc = species_only %>% 
+  mutate(simpson = diversity(., index = "simpson"),
+         shannon = diversity(., index = "shannon"),
+         invD = diversity(., index = "invsimp"),
+         rownumber = row_number()) %>% 
+  select(simpson:rownumber)
+  
+  
+
+div_calc$invD
+community=rich_env %>% 
+  left_join(div_calc) 
+
+
+# write.csv(community, file = "community.csv")
+#created a file that has metrics on it
+#Stopped here
+#*Need to:
+#*Edit this document have a master file for data wrangling
+#*Calculate codyn measurements
+#*Try running some models
+
+
 
 #ave quad richness by plot
 avequadrich<-quadrichness%>%
