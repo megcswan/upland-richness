@@ -2,30 +2,33 @@
 packages <- c("tidyverse", "here", "vegan")
 lapply(packages, library, character.only = T)
 
-#Load data
-
+# #Load data
+# 
 allspecies = read_csv("allspecies.csv") %>% select(-"...1")
 
 #organizing columns so I understand nested design
 # TransectQuadratID=Park_EcoSitePlot_Date_Transect_Quadrat
+allspecies <- allspecies %>%
+  mutate(TransectQuadrat = str_remove(TransectQuadratID, pattern ="\\w{4}_\\w{1}\\d{2}_\\d{8}_")) %>%
+  separate(TransectQuadrat, into = c("Transect","Quadrat"), sep = "_")
 
-allspecies <- allspecies %>% 
-  mutate(Quadrat = str_remove(TransectQuadratID, pattern ="_\\d{8}"))
-
-
+# saveRDS(allspecies, file = "allspecies_wrangle.rds")
+# 
+# # Restore the data file object
+# allspecies = readRDS(file = "allspecies_wrangle.rds")
 
 #
 plotrichness<-allspecies%>%
-  group_by(EcoSite, EventYear, Plot)%>%
+  group_by(Plot, EcoSite, EventYear)%>%
   summarize(plotrich = sum(SpeciesPresentInQuadratForNested))
 
 # Diversity by plot -------------------------------------------------------
 
 
-species_wide_plot = allspecies %>% 
-  group_by(Park, EcoSite, EventYear, Plot, CurrentSpecies) %>% 
+species_wide = allspecies %>% 
+  group_by(Park, EcoSite, EventYear, Plot, Transect, Quadrat, CurrentSpecies) %>% 
   mutate(CoverClass_avg = mean(NestedQuadratSizeClass)) %>% 
-  select(Park:Plot,CurrentSpecies, CoverClass_avg) %>% 
+  select(Park:EventPanel,Plot, Transect, Quadrat, CurrentSpecies, CoverClass_avg) %>% 
   distinct() %>% #removed 2 taxa? from record, this is probably not correct
   pivot_wider(names_from = CurrentSpecies, values_from = CoverClass_avg, values_fill = 0) %>% 
   ungroup()
@@ -33,10 +36,10 @@ species_wide_plot = allspecies %>%
 #For duplicates from above?
 #re-run species_wide stopping before the select
 #run below
-# View(species_wide %>% 
-#   filter(CoverClassMidpoint_Quadrat_pct!=CoverMidpoint_pct))
+View(species_wide %>%
+  filter(CoverClassMidpoint_Quadrat_pct!=CoverMidpoint_pct))
 
-species_wide_int_plot=species_wide_plot %>% 
+species_wide_int=species_wide %>% 
   select(-c(Park:Plot)) %>% 
   mutate_all(., function(x) as.integer(ifelse(x>0, 1, 0)))
 
@@ -108,6 +111,7 @@ rich_quadrat%>%
   ggplot(aes(x=EventYear, y = S.obs, color = EcoSite))+#str_remove(EcoSite, "\\w{4}_")))+
   geom_boxplot()
 
+#need to
 #sit down and read this protocol, what are these numbers and letters, ugh!
 names(rich_quadrat)
 
@@ -118,7 +122,7 @@ quadrats_notcollected=rich_quadrat %>%
 quadrats_notcollected
 
 rich_quadrat %>% 
-  group_by(Park, EventYear) %>% 
+  group_by(Park, EventYear, EcoSite) %>% 
   tally() 
 
 rich_quadrat %>% 
