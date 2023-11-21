@@ -1,0 +1,12 @@
+install.packages(pkgs=c("BiodiversityR", "vegan", 
+                        "Rcmdr", "MASS", "mgcv", 
+                        "cluster", "RODBC", "rpart", "effects", "multcomp", 
+                        "ellipse", "maptree", "sp", "splancs", "spatial", 
+                        "akima", "nnet", "dismo", "raster", "rgdal", 
+                        "bootstrap", "PresenceAbsence", 
+                        "maxlike", "gbm", "randomForest", "gam", "earth", "mda", 
+                        "kernlab", "e1071", "glmnet", "sem", "rgl", "relimp", 
+                        "lmtest", "leaps", "Hmisc", "colorspace", "aplpack", 
+                        "abind", "XLConnect", "car", "markdown", "knitr",
+                        "geosphere", "maptools", "rgeos", "ENMeval", "red"), 
+                 dependencies=c("Depends", "Imports"))
