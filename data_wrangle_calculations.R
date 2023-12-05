@@ -168,7 +168,7 @@ View(community %>%
 
 # 
 # write.csv(species_corrected, file = "species_corrected.csv", row.names = F)
-# write.csv(species_corrected_nozero_sampleyears, file = "species_corrected_nozero_sampleyears.csv", row.names = F)
+# write.csv(species_corrected_nozero_sampleyears, file = "species_filtered.csv", row.names = F)
 # write.csv(community, file = "community.csv", row.names = F)
 # write.csv(species_wide_div, file ="species_wide_cover.csv")
 # created a file that has metrics on it
