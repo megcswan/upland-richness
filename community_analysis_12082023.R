@@ -18,7 +18,7 @@ community <- read.csv("community.csv", header = T) %>% #read data file
          Year_factor = as.factor(EventYear))
 
 species_long <- read.csv("species_filtered.csv") %>%  #load long file of all species
-  mutate(Replicate=paste( Plot, Transect, Quadrat, sep="_"),
+  mutate(Replicate=paste( EventPanel,Plot, Transect, Quadrat, sep="_"),
                          Plot = as.factor(Plot), #fix nested columns to better analyze data
                          Quadrat = as.factor(Quadrat),
                          SampleYear = EventYear -2007,
@@ -213,39 +213,171 @@ sampleyears <- species_rank %>%
   dplyr::select(Replicate, EventYear) %>% 
   unique()
 
+#remove plots that were only sampled 1 year
+#The following numbers are the data frames in species park that have plots that were only sampled 1 year: 
+#3, 6, 8, 14, 16, 17
+
+#create dataframe that tallys and filter plots/replicates sampled in only 1 year
+species_multyear <- species_rank %>% ungroup() %>% 
+  dplyr::select(Park_Ecosite,Replicate, Plot, EventYear) %>% 
+  distinct()  %>% 
+  group_by(Park_Ecosite,Replicate) %>%  
+  add_tally() %>% 
+  filter(n>1) %>% 
+  mutate(rep = paste0(Park_Ecosite, "_", Replicate))
+
+#remove records taht were only sampled in one year
+species_rank <- species_rank %>% 
+  mutate(rep = paste0(Park_Ecosite, "_", Replicate)) %>% 
+  filter(rep%in%species_multyear$rep)
 
 species_park <-species_rank  %>%
-  split(., species_rank$Park_Ecosite) #split example dataset by group factor
+  split(., species_rank$Park_Ecosite) #split  dataset by Park_Ecosite
 
-species_park_list=names(species_park)
-stability_df <- data.frame()
-turnover_df <- data.frame()
+species_park_list=names(species_park) #create a list of the dataframe names
+stability_df <- data.frame()#Create an empty dataframe for stability 
+turnover_df <- data.frame()#Create an empty dataframe for turnover
+rate_change_df <- data.frame()#Create an empty dataframe for rate_change
+rate_change_interval_df <- data.frame()#Create an empty dataframe for rate_change_interval
+synchrony_df <- data.frame()#Create an empty dataframe for synchrony
+variance_ratio_df <- data.frame()#Create an empty dataframe for variance_ratio
+rank_shift_df <- data.frame()#Create an empty dataframe for rank_shift
+appearance_df <- data.frame()
+disappearance_df <- data.frame()
+
+
 for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
+  
   stability_park_df <- codyn::community_stability(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate") %>% 
-    mutate(Park = species_park_list[i] )
+    mutate(Park_Ecosite = species_park_list[i] ) %>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
   stability_df <- rbind(stability_df, stability_park_df)
   
-  # turnover_park_df <- codyn::turnover(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="total") %>% 
-  #   mutate(Park = species_park_list[i] )
-  # turnover_df <- rbind(turnover_df, turnover_park_df)
+  turnover_park_df <- codyn::turnover(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="total") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  turnover_df <- rbind(turnover_df, turnover_park_df)
   
   
-  }
-#This stopped working after I added ecosite, need to think about
+  appearance_park_df <- codyn::turnover(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="appearance") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  appearance_df <- rbind(appearance_df, appearance_park_df)
+  
+  disappearance_park_df <- codyn::turnover(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="disappearance") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  disappearance_df <- rbind(disappearance_df, disappearance_park_df)
+  
+  turnover_park_df <- codyn::turnover(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="total") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  turnover_df <- rbind(turnover_df, turnover_park_df)
+  
+  rate_change_park_df <- codyn::rate_change(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  rate_change_df <- rbind(rate_change_df, rate_change_park_df)
+  
+  rate_change_interval_park_df <- codyn::rate_change_interval(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  rate_change_interval_df <- rbind(rate_change_interval_df, rate_change_interval_park_df)
+  
+  rank_shift_park_df <- codyn::rank_shift(species_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies") %>%
+    mutate(Park_Ecosite = species_park_list[i] )%>% 
+    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+  rank_shift_df <- rbind(rank_shift_df, rank_shift_park_df)
+  
+}
+
+
+
+#Tried to get synchrony but it is not working, says needs more than 1 species per replicate
+#Tried several ways to remove plots with only 1 species, but it still does not work
+#Below, I tried to filter by species richness
+#checked warnings,   One or more species has non-varying abundance within a subplot and has been omitted
+#It is likely that the abundance does not change, so may not be able to use this metric
+#Skip for now look into later
+
+# community_multispecies<- community %>% 
+#   mutate(Park_Ecosite = paste(Park, EcoSite, sep = "_")) %>% 
+#   filter(S.obs>1) %>% 
+#   mutate(Park_Ecosite_Year_Replicate = paste(Park, EcoSite, EventYear, Plot, Transect, Quadrat, sep = "_"))
+# 
+# species_multi <- species_rank%>% #remove plots that contain only 1 species, this is a requirement for these calculations
+#   mutate(Park_Ecosite_Year_Replicate = paste(Park, EcoSite, EventYear, Plot, Transect, Quadrat, sep = "_")) %>% 
+# filter(Park_Ecosite_Year_Replicate%in%community_multispecies$Park_Ecosite_Year_Replicate)
+# 
+# species_multi_park <-species_multi  %>%
+#   split(., species_multi$Park_Ecosite) #
+# 
+# 
+# 
+# for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
+# 
+#   
+#   synchrony_park_df <- codyn::synchrony(species_multi_park[[i]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="Gross") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"))
+#   synchrony_df <- rbind(synchrony_df, synchrony_park_df)
+#   
+#   }
+# 
+# species_multi_park[[2]] %>% 
+#   group_by(Replicate, CurrentSpecies) %>% 
+#   tally()
+# synchrony_park_df <- codyn::synchrony(species_multi_park[[4]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies", metric="Loreau") %>%
+#   
+
+#Same thing for variance ratio, it does work for some but not all parks
+# variance_ratio_park_df <- codyn::variance_ratio(species_park[[6]], time.var = "EventYear", abundance.var = "Cover_pct",  replicate.var = "Replicate", species.var = "CurrentSpecies",  bootnumber = 10,average.replicates = T) %>%
+#   mutate(Park_Ecosite = species_park_list[i] )%>% 
+#   separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"))
+# variance_ratio_df <- rbind(variance_ratio_df, variance_ratio_park_df)
+
+#Create visualizations
 stability_df %>% 
   ggplot(aes(x = Park, y =stability)) +
-  geom_boxplot() %>% 
-  ylim(0,20)
+  geom_boxplot() +
+  ylim(0,100)
+
+turnover_df %>% 
+  ggplot(aes(y = total, x = EventYear, color = Park, linetype = EcoSite))+
+  stat_smooth(method = "lm") +
+  scale_color_manual(values = c("black","red","purple", "goldenrod", "blue", "lightblue", "lavender","darkgreen", "orange","green"))+
+  facet_wrap(~Park)
+
+
+rate_change_df %>% 
+  ggplot(aes(x = paste(Park, EcoSite, sep = "_"), y =rate_change)) +
+  geom_boxplot() 
+
+rate_change_interval_df %>% 
+  ggplot(aes(x = interval, y = distance, color= Park, linetype=EcoSite)) +
+  stat_smooth(method = "lm") +
+  scale_color_manual(values = c("black","red","purple", "goldenrod", "blue", "lightblue", "lavender","darkgreen", "orange","green"))+
+  facet_wrap(~Park)
+
+#need to figure out a better way to graph
+rank_shift_df %>% 
+  mutate(year =as.numeric(substr(year_pair, 6,9))) %>% 
+  ggplot(aes(y = MRS, x = year, color = Park, linetype = EcoSite))+
+  stat_smooth(method = "lm")+
+  #scale_color_manual(values = c("black","red","purple", "goldenrod", "blue", "lightblue", "lavender","darkgreen", "orange","green"))+
+  facet_wrap(~Park)
 
 
 
+#run analyses on these factors
+#create rank clock
 # Create rank abundance curves by park ecosite ----------------------------
 
 
 species_rank_park_avg <- species_long %>% 
   ungroup() %>% 
   mutate(Park_Ecosite = paste(Park, EcoSite, sep = "_")) %>% 
-  group_by(Park_Ecosite,EventYear, EventPanel, CurrentSpecies) %>% 
+  group_by(Park_Ecosite,EventYear, EventPanel,CurrentSpecies) %>% 
   summarise(Cover_plot_avg= mean(Cover_pct)) %>% 
   mutate(rank = rank(-Cover_plot_avg, ties.method = "average")) %>% 
   ungroup() 
@@ -263,7 +395,9 @@ for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the l
     filter(rank<=3) %>% 
     dplyr::select(CurrentSpecies, rank) %>% 
     arrange(rank) %>% 
-    mutate(Park_Ecosite =species_park_list[i] )
+    mutate(Park_Ecosite =species_park_list[i] ) %>% 
+    dplyr::select(-rank) %>% 
+    distinct()
   
   top_species_df= rbind(top_species_df, top_species)
   
@@ -277,8 +411,14 @@ for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the l
            facet_wrap(~paste(EventYear, EventPanel))+
            #scale_color_manual(values = c("blue","lightblue","darkred", "pink","green3","orange","cornflowerblue", "darkgreen","purple", "lavender"))+
            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "top", axis.title.x = element_blank(), axis.title.y = element_blank()))
-  
+ 
 }
+
+
+top_species_park <- top_species_df %>% 
+  split(., top_species_df$Park_Ecosite)
+
+
 
 RAC_plot_AZRU_A
 RAC_plot_BAND_M
@@ -298,15 +438,50 @@ RAC_plot_WUPA_L
 RAC_plot_WUPA_S
 
 
-#YAY you are doing great!
+  
+for (i in 1:13){ #run a loop over the dataframes in the list
+  
 #need to fix colors, increase number of species presented, or figure out another way to label the top 5 species or something
+    aggdat <- aggregate(Cover_plot_avg ~ CurrentSpecies * EventYear * Park_Ecosite*EventPanel, 
+                    data = subset(species_rank_park_avg[[i]], 
+                                  CurrentSpecies=="Bromus tectorum"),
+                                  #CurrentSpecies%in%top_species_park[[3]]$CurrentSpecies), 
+                    FUN = mean)
+    
+    assign(paste("BT_plot", species_park_list[i], sep="_"),
+       aggdat %>% 
+         ggplot( aes(EventYear, Cover_plot_avg, color = CurrentSpecies)) + 
+         geom_line(size = 2) + 
+         coord_polar() + 
+         theme_bw() + 
+         facet_wrap(~Park_Ecosite*EventPanel) +
+         ggtitle(paste0("Bromus tectorum abundances \n", aggdat$Park_Ecosite)))
+         #scale_color_manual(values = c("blue","lightblue","darkred", "pink","green3","orange","cornflowerblue", "darkgreen","purple", "lavender"))+
+         #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "top", axis.title.x = element_blank(), axis.title.y = element_blank()))
+
+ }
+
+BT_plot_AZRU_A
+BT_plot_BAND_M
+BT_plot_BAND_P
+BT_plot_CHCU_S
+BT_plot_GLCA_B
+BT_plot_GLCA_H
+BT_plot_GRCA_M
+BT_plot_MEVE_L
+BT_plot_MEVE_S
+BT_plot_PEFO_C
+
+
+#Is this because of panels????
 
 
 #*Things to do:
 #*1. rank abundance curves by event panel?
-#*2. what to do about event panel anyway? discuss with megan
-#*3. calculate other metrics with codyn
+#*2. what to do about event panel anyway? discuss with megan. were plots in event panels randomized?
+#*3. calculate other metrics with codyn from Hallett paper
 #*4. organize this script
+#*5. look into pft and functional diversity?
 
 ###Getting relative rank and cumulative abundance to plot cumulative curves
 ccplot<-ractoplot%>%
