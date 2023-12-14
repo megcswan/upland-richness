@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Laura W Ploughe">
+
+<title>Upland Initial Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="Upland Initial Analysis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Upland Initial Analysis_files/libs/quarto-html/quarto.js"></script>
+<script src="Upland Initial Analysis_files/libs/quarto-html/popper.min.js"></script>
+<script src="Upland Initial Analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Upland Initial Analysis_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Upland Initial Analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Upland Initial Analysis_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Upland Initial Analysis_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Upland Initial Analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Upland Initial Analysis_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Upland Initial Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Laura W Ploughe </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Data were wrangled initially in <em>data_wrangle_calculations.R</em> anddata_wrangle4_codyn.R<em>.</em> This script uses objects created in the later.</p>
+</section>
+<section id="richness-models" class="level2">
+<h2 class="anchored" data-anchor-id="richness-models">Richness models</h2>
+<p>Sites with more than one ecosite</p>
+<p>Model Parameters</p>
+<table class="table">
+<caption>Fixed and random effects for richness models as well as transformations (if performed).</caption>
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 23%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Response Variable</th>
+<th>Transformation</th>
+<th>Fixed Effects</th>
+<th>Random Effects</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Richness</td>
+<td>sqrt</td>
+<td>EcoSite*SampleYear</td>
+<td>1|EventPanel:Plot:Transect:Quadrat</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="richness---parks-with-more-than-one-ecosite" class="level2">
+<h2 class="anchored" data-anchor-id="richness---parks-with-more-than-one-ecosite"><strong>Richness - Parks with more than one Ecosite</strong></h2>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section"></h2>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1"></h2>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Upland-Initial-Analysis_files/figure-html/rich_plots-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="model-results" class="level3">
+<h3 class="anchored" data-anchor-id="model-results">Model Results</h3>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 19%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 9%">
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Park</th>
+<th style="text-align: left;">FixedEffect</th>
+<th style="text-align: right;">Sum Sq</th>
+<th style="text-align: right;">Mean Sq</th>
+<th style="text-align: right;">NumDF</th>
+<th style="text-align: right;">DenDF</th>
+<th style="text-align: right;">F value</th>
+<th style="text-align: left;">p_value</th>
+<th style="text-align: left;">Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BAND</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">15.4637299</td>
+<td style="text-align: right;">15.4637299</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2939.950</td>
+<td style="text-align: right;">65.0003258</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BAND</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">51.6318279</td>
+<td style="text-align: right;">51.6318279</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3483.463</td>
+<td style="text-align: right;">217.0295038</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BAND</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">5.0670276</td>
+<td style="text-align: right;">5.0670276</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2929.553</td>
+<td style="text-align: right;">21.2987713</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLCA</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">407.9834698</td>
+<td style="text-align: right;">407.9834698</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1760.061</td>
+<td style="text-align: right;">944.4993991</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GLCA</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">281.1206145</td>
+<td style="text-align: right;">140.5603073</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1761.420</td>
+<td style="text-align: right;">325.4031979</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLCA</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">235.1720330</td>
+<td style="text-align: right;">117.5860165</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1710.313</td>
+<td style="text-align: right;">272.2167198</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GRCA</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">1.0878721</td>
+<td style="text-align: right;">1.0878721</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4148.500</td>
+<td style="text-align: right;">6.2994140</td>
+<td style="text-align: left;">0.0121</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GRCA</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">63.9485428</td>
+<td style="text-align: right;">63.9485428</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4159.433</td>
+<td style="text-align: right;">370.2993524</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GRCA</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">14.8846097</td>
+<td style="text-align: right;">14.8846097</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4210.222</td>
+<td style="text-align: right;">86.1905696</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MEVE</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">6.8757169</td>
+<td style="text-align: right;">6.8757169</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2876.462</td>
+<td style="text-align: right;">42.4254501</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MEVE</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">0.0020078</td>
+<td style="text-align: right;">0.0020078</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3060.775</td>
+<td style="text-align: right;">0.0123891</td>
+<td style="text-align: left;">0.9114</td>
+<td style="text-align: left;">NS</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MEVE</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">0.3104444</td>
+<td style="text-align: right;">0.3104444</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2835.706</td>
+<td style="text-align: right;">1.9155446</td>
+<td style="text-align: left;">0.1665</td>
+<td style="text-align: left;">NS</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PEFO</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">74.3098903</td>
+<td style="text-align: right;">74.3098903</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4132.481</td>
+<td style="text-align: right;">308.0923386</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PEFO</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">9.9625190</td>
+<td style="text-align: right;">9.9625190</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4638.755</td>
+<td style="text-align: right;">41.3050775</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PEFO</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">15.8162042</td>
+<td style="text-align: right;">15.8162042</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4090.040</td>
+<td style="text-align: right;">65.5747346</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">WUPA</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">2.0172839</td>
+<td style="text-align: right;">2.0172839</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3869.553</td>
+<td style="text-align: right;">16.1118854</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">WUPA</td>
+<td style="text-align: left;">EcoSite</td>
+<td style="text-align: right;">23.0922589</td>
+<td style="text-align: right;">23.0922589</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4098.852</td>
+<td style="text-align: right;">184.4360295</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">WUPA</td>
+<td style="text-align: left;">SampleYear:EcoSite</td>
+<td style="text-align: right;">15.1651333</td>
+<td style="text-align: right;">15.1651333</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3823.646</td>
+<td style="text-align: right;">121.1227103</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="richness---parks-with-one-ecosite" class="level2">
+<h2 class="anchored" data-anchor-id="richness---parks-with-one-ecosite"><strong>Richness - Parks with one Ecosite</strong></h2>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Upland-Initial-Analysis_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="model-results-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-results-1">Model Results</h3>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 13%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 6%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 9%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Park</th>
+<th style="text-align: left;">FixedEffect</th>
+<th style="text-align: right;">Sum Sq</th>
+<th style="text-align: right;">Mean Sq</th>
+<th style="text-align: right;">NumDF</th>
+<th style="text-align: right;">DenDF</th>
+<th style="text-align: right;">F value</th>
+<th style="text-align: left;">p_value</th>
+<th style="text-align: left;">Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">AZRU</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">12.0232573</td>
+<td style="text-align: right;">12.0232573</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">179.0000</td>
+<td style="text-align: right;">84.0887641</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CHCU</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">0.4501174</td>
+<td style="text-align: right;">0.4501174</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1937.2199</td>
+<td style="text-align: right;">3.1670355</td>
+<td style="text-align: left;">0.0753</td>
+<td style="text-align: left;">†</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PETR</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">4.1598170</td>
+<td style="text-align: right;">4.1598170</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">179.0000</td>
+<td style="text-align: right;">31.2264754</td>
+<td style="text-align: left;">&lt;0.0001</td>
+<td style="text-align: left;">****</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">WACA</td>
+<td style="text-align: left;">SampleYear</td>
+<td style="text-align: right;">0.0004918</td>
+<td style="text-align: right;">0.0004918</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">448.9987</td>
+<td style="text-align: right;">0.0037289</td>
+<td style="text-align: left;">0.9513</td>
+<td style="text-align: left;">NS</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code></code></pre>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

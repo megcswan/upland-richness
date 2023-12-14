@@ -4,224 +4,239 @@
 
 
 #Install packages
-packages <- c("tidyverse", "here","lme4","LMERConvenienceFunctions", "lmerTest", "emmeans", "multcomp") #list of packages to install
+# packages <- c("tidyverse", "here","lme4","LMERConvenienceFunctions", "lmerTest", "emmeans", "multcomp") #list of packages to install
 lapply(packages, library, character.only = T) #load packages
 
 #The files below were created with data_wrangle_calculations.R
 
 
-#community data in long species format
+# #community data in long species format
+# 
+# species_long <- read.csv(here("data","species_filtered.csv")) %>%  #load long file of all species
+#   mutate(Replicate=paste(EventPanel,Plot, Transect, Quadrat, sep="_"),
+#                          Plot = as.factor(Plot), #fix nested columns to better analyze data
+#                          Quadrat = as.factor(Quadrat),
+#                          SampleYear = EventYear -2007,
+#                          Year_factor = as.factor(EventYear),
+#                          Park_Ecosite = paste(Park, EcoSite, sep="_"))
+# 
+# 
+# # #Calculate codyn metrics ------------------------------------------------
+# 
+# #Calculate community metrics from codyn
+# 
+# #Rank abundance
+# 
+# species_rank <- species_long %>% 
+#   group_by(Replicate, EventYear) %>% #replicate EventPanel, Plot, Transect, Quadrat
+#   mutate(Park_Ecosite = paste(Park, EcoSite, sep = "_")) %>% 
+#   mutate(rank = rank(-Cover_pct, ties.method = "average")) #ties are averaged, add rank to the file
+# 
+# sampleyears <- species_rank %>% 
+#   dplyr::select(Replicate, EventYear) %>% 
+#   unique()
+# 
+# #remove plots that were only sampled 1 year
+# #The following numbers are the data frames in species park that have plots that were only sampled 1 year: 
+# #3, 6, 8, 14, 16, 17
+# 
+# #plots sampled 1 time
+# plot_oneyear <- species_rank %>% 
+#   ungroup() %>% 
+#   dplyr::select(Park_Ecosite,Replicate, Plot, EventYear) %>% 
+#   distinct()  %>% 
+#   group_by(Park_Ecosite,Replicate) %>%  
+#   add_tally() %>% 
+#   filter(n==1)%>% 
+#   mutate(rep = paste0(Park_Ecosite, "_", Replicate))
+# #create dataframe that tallys and filter plots/replicates sampled in only 1 year
+# #214293-2161
+# 
+# #remove records taht were only sampled in one year
+# species_rank <- species_rank %>% 
+#   mutate(rep = paste0(Park_Ecosite, "_", Replicate)) %>% 
+#   filter(!(rep%in%plot_oneyear$rep))
+# #verified that the number of initial rows (214293) - Number of rows to be removed(2161) = new total 212132
+# 
+# species_park <-species_rank  %>%
+#   split(., species_rank$Park_Ecosite) #split  dataset by Park_Ecosite
+# 
+# species_park_list=names(species_park) #create a list of the dataframe names
+# stability_df <- data.frame()#Create an empty dataframe for stability 
+# turnover_df <- data.frame()#Create an empty dataframe for turnover
+# rate_change_df <- data.frame()#Create an empty dataframe for rate_change
+# rate_change_interval_df <- data.frame()#Create an empty dataframe for rate_change_interval
+# #synchrony_df <- data.frame()#Create an empty dataframe for synchrony
+# #variance_ratio_df <- data.frame()#Create an empty dataframe for variance_ratio
+# rank_shift_df <- data.frame()#Create an empty dataframe for rank_shift
+# appearance_df <- data.frame()
+# disappearance_df <- data.frame()
+# 
+# 
+# for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
+#   
+#   stability_park_df <- codyn::community_stability(species_park[[i]], 
+#                                                   time.var = "EventYear", 
+#                                                   abundance.var = "Cover_pct",  
+#                                                   replicate.var = "Replicate") %>% 
+#     mutate(Park_Ecosite = species_park_list[i] ) %>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   stability_df <- rbind(stability_df, stability_park_df)
+#   
+#   turnover_park_df <- codyn::turnover(species_park[[i]], 
+#                                       time.var = "EventYear", 
+#                                       abundance.var = "Cover_pct",  
+#                                       replicate.var = "Replicate", 
+#                                       species.var = "CurrentSpecies", 
+#                                       metric="total") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   turnover_df <- rbind(turnover_df, turnover_park_df)
+#   
+#   
+#   appearance_park_df <- codyn::turnover(species_park[[i]], 
+#                                         time.var = "EventYear", 
+#                                         abundance.var = "Cover_pct",  
+#                                         replicate.var = "Replicate", 
+#                                         species.var = "CurrentSpecies", 
+#                                         metric="appearance") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   appearance_df <- rbind(appearance_df, appearance_park_df)
+#   
+#   disappearance_park_df <- codyn::turnover(species_park[[i]], 
+#                                            time.var = "EventYear", 
+#                                            abundance.var = "Cover_pct",  
+#                                            replicate.var = "Replicate", 
+#                                            species.var = "CurrentSpecies", 
+#                                            metric="disappearance") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   disappearance_df <- rbind(disappearance_df, disappearance_park_df)
+#   
+#   turnover_park_df <- codyn::turnover(species_park[[i]], 
+#                                       time.var = "EventYear", 
+#                                       abundance.var = "Cover_pct",  
+#                                       replicate.var = "Replicate", 
+#                                       species.var = "CurrentSpecies",
+#                                       metric="total") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   turnover_df <- rbind(turnover_df, turnover_park_df)
+#   
+#   rate_change_park_df <- codyn::rate_change(species_park[[i]], 
+#                                             time.var = "EventYear", 
+#                                             abundance.var = "Cover_pct",  
+#                                             replicate.var = "Replicate", 
+#                                             species.var = "CurrentSpecies") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   rate_change_df <- rbind(rate_change_df, rate_change_park_df)
+#   
+#   rate_change_interval_park_df <- codyn::rate_change_interval(species_park[[i]], 
+#                                                               time.var = "EventYear", 
+#                                                               abundance.var = "Cover_pct",  
+#                                                               replicate.var = "Replicate", 
+#                                                               species.var = "CurrentSpecies") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   rate_change_interval_df <- rbind(rate_change_interval_df, rate_change_interval_park_df)
+#   
+#   rank_shift_park_df <- codyn::rank_shift(species_park[[i]], 
+#                                           time.var = "EventYear", 
+#                                           abundance.var = "Cover_pct",  
+#                                           replicate.var = "Replicate", 
+#                                           species.var = "CurrentSpecies") %>%
+#     mutate(Park_Ecosite = species_park_list[i] )%>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   rank_shift_df <- rbind(rank_shift_df, rank_shift_park_df)
+#   
+# }
+# 
+# community_structure_df <- data.frame()
+# for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
+#   
+#   simp_df <- codyn::community_structure( species_park[[i]], 
+#                                                    time.var = "EventYear", 
+#                                                    abundance.var="Cover_pct", 
+#                                                    replicate.var = "Replicate", 
+#                                                    metric = "SimpsonEvenness")
+#   
+#   evar_df <- codyn::community_structure( species_park[[i]], 
+#                                          time.var = "EventYear", 
+#                                          abundance.var="Cover_pct", 
+#                                          replicate.var = "Replicate", 
+#                                          metric = "Evar")
+#   
+#   EQ_df <- codyn::community_structure( species_park[[i]], 
+#                                          time.var = "EventYear", 
+#                                          abundance.var="Cover_pct", 
+#                                          replicate.var = "Replicate", 
+#                                          metric = "EQ")
+#   
+#   shannon_df <- codyn::community_diversity( species_park[[i]], 
+#                                             time.var = "EventYear", 
+#                                             abundance.var="Cover_pct", 
+#                                             replicate.var = "Replicate", 
+#                                             metric = "Shannon")
+#   
+#   invD_df <- codyn::community_diversity( species_park[[i]], 
+#                                          time.var = "EventYear", 
+#                                          abundance.var="Cover_pct", 
+#                                          replicate.var = "Replicate", 
+#                                          metric = "InverseSimpson")
+#   
+#   community_structure_park_df <- simp_df %>% 
+#     full_join(evar_df) %>% 
+#     full_join(EQ_df) %>% 
+#     full_join(shannon_df) %>% 
+#     full_join(simp_df) %>% 
+#     mutate(Park_Ecosite = species_park_list[i] ) %>% 
+#     separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
+#   
+#   community_structure_df <- rbind(community_structure_df, community_structure_park_df)
+# }
+# 
+# 
+# community_structure_df <- community_structure_df %>% 
+#   mutate(SampleYear = EventYear -2007) %>% 
+#   separate(Replicate, into = c("EventPanel", "Plot", "Transect","Quadrat"), sep = "_", remove = FALSE ) %>% 
+#   mutate(Plot = as.factor(Plot), Quadrat= as.factor(Quadrat))
+# 
+# 
+# #Some parks do not have multiple ecosites, so have to separate these to be able to run models with and without ecosite
+# 
+# #Create list of data frames with parks with ecosites 
+# community_ecosite <- community_structure_df %>% 
+#   filter(!(Park%in%c("AZRU", "CHCU", "PETR", "WACA")))   #remove sites with only 1 ecosite
+# community_ecosite_park <-community_ecosite  %>%
+#   split(., community_ecosite$Park) #split example dataset by group factor
+# 
+# #create a list of parks_ecosite
+# parks_ecosite <- names(community_ecosite_park)
+# 
+# #Create list of data frames with parks with only 1 ecosite 
+# 
+# community_noecosite <- community_structure_df %>% 
+#   filter((Park%in%c("AZRU", "CHCU", "PETR", "WACA"))) #remove sites with only 1 ecosite
+# 
+# 
+# community_noecosite_park <-community_noecosite  %>% #create a list of dataframes separated by park
+#   split(., community_noecosite$Park) #split example dataset by group factor
+# 
+# 
+# list_o_dfs <-  ls() %>% 
+#   as.data.frame() %>% 
+#   rename(df=".") %>% 
+#   filter(!(str_detect(df, "park_df"))|
+#            df!="i")
+# 
+# save(list=list_o_dfs$df,file="calculated_dfs") # save them (notice that objects are accessed as strings)
+# rm(list = ls())
 
-species_long <- read.csv(here("data","species_filtered.csv")) %>%  #load long file of all species
-  mutate(Replicate=paste(EventPanel,Plot, Transect, Quadrat, sep="_"),
-                         Plot = as.factor(Plot), #fix nested columns to better analyze data
-                         Quadrat = as.factor(Quadrat),
-                         SampleYear = EventYear -2007,
-                         Year_factor = as.factor(EventYear),
-                         Park_Ecosite = paste(Park, EcoSite, sep="_"))
+#This will load the necessary objects that were created in the commented out script above
+load(file=here("results","calculated_dfs"))
 
-
-# #Calculate codyn metrics ------------------------------------------------
-
-#Calculate community metrics from codyn
-
-#Rank abundance
-
-species_rank <- species_long %>% 
-  group_by(Replicate, EventYear) %>% #replicate EventPanel, Plot, Transect, Quadrat
-  mutate(Park_Ecosite = paste(Park, EcoSite, sep = "_")) %>% 
-  mutate(rank = rank(-Cover_pct, ties.method = "average")) #ties are averaged
-
-sampleyears <- species_rank %>% 
-  dplyr::select(Replicate, EventYear) %>% 
-  unique()
-
-#remove plots that were only sampled 1 year
-#The following numbers are the data frames in species park that have plots that were only sampled 1 year: 
-#3, 6, 8, 14, 16, 17
-
-#plots sampled 1 time
-plot_oneyear <- species_rank %>% 
-  ungroup() %>% 
-  dplyr::select(Park_Ecosite,Replicate, Plot, EventYear) %>% 
-  distinct()  %>% 
-  group_by(Park_Ecosite,Replicate) %>%  
-  add_tally() %>% 
-  filter(n==1)%>% 
-  mutate(rep = paste0(Park_Ecosite, "_", Replicate))
-#create dataframe that tallys and filter plots/replicates sampled in only 1 year
-#214293-2161
-
-#remove records taht were only sampled in one year
-species_rank <- species_rank %>% 
-  mutate(rep = paste0(Park_Ecosite, "_", Replicate)) %>% 
-  filter(!(rep%in%plot_oneyear$rep))
-#verified that the number of initial rows (214293) - Number of rows to be removed(2161) = new total 212132
-species_park <-species_rank  %>%
-  split(., species_rank$Park_Ecosite) #split  dataset by Park_Ecosite
-
-species_park_list=names(species_park) #create a list of the dataframe names
-stability_df <- data.frame()#Create an empty dataframe for stability 
-turnover_df <- data.frame()#Create an empty dataframe for turnover
-rate_change_df <- data.frame()#Create an empty dataframe for rate_change
-rate_change_interval_df <- data.frame()#Create an empty dataframe for rate_change_interval
-synchrony_df <- data.frame()#Create an empty dataframe for synchrony
-variance_ratio_df <- data.frame()#Create an empty dataframe for variance_ratio
-rank_shift_df <- data.frame()#Create an empty dataframe for rank_shift
-appearance_df <- data.frame()
-disappearance_df <- data.frame()
-
-
-for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
-  
-  stability_park_df <- codyn::community_stability(species_park[[i]], 
-                                                  time.var = "EventYear", 
-                                                  abundance.var = "Cover_pct",  
-                                                  replicate.var = "Replicate") %>% 
-    mutate(Park_Ecosite = species_park_list[i] ) %>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  stability_df <- rbind(stability_df, stability_park_df)
-  
-  turnover_park_df <- codyn::turnover(species_park[[i]], 
-                                      time.var = "EventYear", 
-                                      abundance.var = "Cover_pct",  
-                                      replicate.var = "Replicate", 
-                                      species.var = "CurrentSpecies", 
-                                      metric="total") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  turnover_df <- rbind(turnover_df, turnover_park_df)
-  
-  
-  appearance_park_df <- codyn::turnover(species_park[[i]], 
-                                        time.var = "EventYear", 
-                                        abundance.var = "Cover_pct",  
-                                        replicate.var = "Replicate", 
-                                        species.var = "CurrentSpecies", 
-                                        metric="appearance") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  appearance_df <- rbind(appearance_df, appearance_park_df)
-  
-  disappearance_park_df <- codyn::turnover(species_park[[i]], 
-                                           time.var = "EventYear", 
-                                           abundance.var = "Cover_pct",  
-                                           replicate.var = "Replicate", 
-                                           species.var = "CurrentSpecies", 
-                                           metric="disappearance") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  disappearance_df <- rbind(disappearance_df, disappearance_park_df)
-  
-  turnover_park_df <- codyn::turnover(species_park[[i]], 
-                                      time.var = "EventYear", 
-                                      abundance.var = "Cover_pct",  
-                                      replicate.var = "Replicate", 
-                                      species.var = "CurrentSpecies",
-                                      metric="total") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  turnover_df <- rbind(turnover_df, turnover_park_df)
-  
-  rate_change_park_df <- codyn::rate_change(species_park[[i]], 
-                                            time.var = "EventYear", 
-                                            abundance.var = "Cover_pct",  
-                                            replicate.var = "Replicate", 
-                                            species.var = "CurrentSpecies") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  rate_change_df <- rbind(rate_change_df, rate_change_park_df)
-  
-  rate_change_interval_park_df <- codyn::rate_change_interval(species_park[[i]], 
-                                                              time.var = "EventYear", 
-                                                              abundance.var = "Cover_pct",  
-                                                              replicate.var = "Replicate", 
-                                                              species.var = "CurrentSpecies") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  rate_change_interval_df <- rbind(rate_change_interval_df, rate_change_interval_park_df)
-  
-  rank_shift_park_df <- codyn::rank_shift(species_park[[i]], 
-                                          time.var = "EventYear", 
-                                          abundance.var = "Cover_pct",  
-                                          replicate.var = "Replicate", 
-                                          species.var = "CurrentSpecies") %>%
-    mutate(Park_Ecosite = species_park_list[i] )%>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  rank_shift_df <- rbind(rank_shift_df, rank_shift_park_df)
-  
-}
-
-community_structure_df <- data.frame()
-for (i in 1:length(species_park_list)){ #run a loop over the dataframes in the list
-  
-  simp_df <- codyn::community_structure( species_park[[i]], 
-                                                   time.var = "EventYear", 
-                                                   abundance.var="Cover_pct", 
-                                                   replicate.var = "Replicate", 
-                                                   metric = "SimpsonEvenness")
-  
-  evar_df <- codyn::community_structure( species_park[[i]], 
-                                         time.var = "EventYear", 
-                                         abundance.var="Cover_pct", 
-                                         replicate.var = "Replicate", 
-                                         metric = "Evar")
-  
-  EQ_df <- codyn::community_structure( species_park[[i]], 
-                                         time.var = "EventYear", 
-                                         abundance.var="Cover_pct", 
-                                         replicate.var = "Replicate", 
-                                         metric = "EQ")
-  
-  shannon_df <- codyn::community_diversity( species_park[[i]], 
-                                            time.var = "EventYear", 
-                                            abundance.var="Cover_pct", 
-                                            replicate.var = "Replicate", 
-                                            metric = "Shannon")
-  
-  invD_df <- codyn::community_diversity( species_park[[i]], 
-                                         time.var = "EventYear", 
-                                         abundance.var="Cover_pct", 
-                                         replicate.var = "Replicate", 
-                                         metric = "InverseSimpson")
-  
-  community_structure_park_df <- simp_df %>% 
-    full_join(evar_df) %>% 
-    full_join(EQ_df) %>% 
-    full_join(shannon_df) %>% 
-    full_join(simp_df) %>% 
-    mutate(Park_Ecosite = species_park_list[i] ) %>% 
-    separate(Park_Ecosite, sep = "_", into = c("Park", "EcoSite"), remove=FALSE)
-  
-  community_structure_df <- rbind(community_structure_df, community_structure_park_df)
-}
-
-
-community_structure_df <- community_structure_df %>% 
-  mutate(SampleYear = EventYear -2007) %>% 
-  separate(Replicate, into = c("EventPanel", "Plot", "Transect","Quadrat"), sep = "_", remove = FALSE ) %>% 
-  mutate(Plot = as.factor(Plot), Quadrat= as.factor(Quadrat))
-
-
-#Some parks do not have multiple ecosites, so have to separate these to be able to run models with and without ecosite
-
-#Create list of data frames with parks with ecosites 
-community_ecosite <- community_structure_df %>% 
-  filter(!(Park%in%c("AZRU", "CHCU", "PETR", "WACA")))   #remove sites with only 1 ecosite
-community_ecosite_park <-community_ecosite  %>%
-  split(., community_ecosite$Park) #split example dataset by group factor
-
-#create a list of parks_ecosite
-parks_ecosite <- names(community_ecosite_park)
-
-#Create list of data frames with parks with only 1 ecosite 
-
-community_noecosite <- community_structure_df %>% 
-  filter((Park%in%c("AZRU", "CHCU", "PETR", "WACA"))) #remove sites with only 1 ecosite
-
-
-community_noecosite_park <-community_noecosite  %>% #create a list of dataframes separated by park
-  split(., community_noecosite$Park) #split example dataset by group factor
 
 #create a list of parks_noecosite
 # Richness ----------------------------------------------------------------
