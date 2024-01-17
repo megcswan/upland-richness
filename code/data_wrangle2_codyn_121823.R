@@ -22,6 +22,33 @@ species_long <- read.csv(here("data","species_filtered.csv")) %>%  #load long fi
                          Park_Ecosite = paste(Park, EcoSite, sep="_"))
 
 
+species_long <- read.csv(here("data","species_filtered.csv")) %>%  #load long file of all species
+  mutate(Replicate=paste(Park, EcoSite,EventPanel,Plot, Transect, Quadrat, sep="_"), #added Park and Ecosite to replicate
+         Plot = as.factor(Plot), #fix nested columns to better analyze data
+         Quadrat = as.factor(Quadrat),
+         SampleYear = EventYear -2007,
+         Year_factor = as.factor(EventYear),
+         Park_Ecosite = paste(Park, EcoSite, sep="_"))
+
+names(species_wide)
+#Values are Present/Absent
+species_wide <-  species_long %>% 
+  dplyr::select(c(EventYear, Park_Ecosite,EventPanel, Plot, Transect, Quadrat,Replicate, CurrentSpecies, Cover_pct)) %>% 
+  pivot_wider(names_from = CurrentSpecies, values_from = Cover_pct, values_fill = 0) %>% 
+  ungroup()
+
+
+
+#make dataframe that has only the species as columns
+species_only=species_wide %>% 
+  dplyr::select(-c(EventYear,Park_Ecosite, Replicate)) 
+
+species_wide_park_ecosite <- species_wide %>% 
+  split(., species_wide$Park_Ecosite)
+
+save(list=c("species_wide", "species_wide_park_ecosite"),file=here("results","species_wide_df")) # save them (notice that objects are accessed as strings)
+
+
 # #Calculate codyn metrics ------------------------------------------------
 
 #Calculate community metrics from codyn
@@ -542,7 +569,7 @@ park_years_long <-  park_years_wide %>%
 
 park_years_long <- park_years_long %>% 
   pivot_longer(., cols = SampleYear_2:SampleYear_8) %>% 
-  rename(EventYear = value, SampleYear_name=name)
+  rename(EventYear_value = value, SampleYear_name=name)
 
 
 upload3_ls
